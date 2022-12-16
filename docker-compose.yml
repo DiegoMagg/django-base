@@ -1,0 +1,38 @@
+version: "3.7"
+
+x-base: &base
+  build:
+    context: .
+    dockerfile: ./deploy/imagens/Dockerfile
+  restart: on-failure
+  env_file: ./app/.env
+  image: project
+  volumes:
+    - ./app:/app
+
+services:
+
+  project-api:
+    <<: *base
+    container_name: project-api
+    command: pipenv run gunicorn project.wsgi --bind 0:9010 --timeout 120 --log-level debug
+    depends_on:
+      - project-migrations
+      - project-fixtures
+    ports:
+      - 9010:9010
+
+  project-fixtures:
+    <<: *base
+    container_name: project-fixtures
+    command: pipenv run python manage.py loaddata fixtures.json
+    depends_on:
+      - project-mariadb
+      - project-migrations
+
+  project-migrations:
+    <<: *base
+    container_name: project-migrations
+    command: pipenv run python manage.py migrate
+    depends_on:
+      - project-postgres
