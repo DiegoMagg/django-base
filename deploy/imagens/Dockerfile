@@ -8,7 +8,7 @@ ENV TZ="America/Sao_Paulo"
 WORKDIR /app
 
 RUN apt-get update && \
-  apt-get install --no-install-recommends -y gcc libmysqlclient-dev && \
+  apt-get install --no-install-recommends -y gcc && \
   apt-get clean && rm -rf /var/lib/apt/lists/* && \
   pip3 install --no-cache-dir --upgrade pipenv pip && \
   rm -rf /root/.cache/*
